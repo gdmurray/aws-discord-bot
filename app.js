@@ -176,7 +176,12 @@ client.on("message", async message => {
 
     if (command === "stop") {
         let messageFilter = m => m.author.id === message.author.id
-        message.channel.send("[MOCK] Are you sure you want to shut down the server? Respond (yes/no)? [PS. It saves money]")
+        const confirmMessage = new Discord.MessageEmbed()
+            .setColor("#FCD34D")
+            .setTitle("Are you sure you want to shut down the server?")
+            .setDescription("Respond **yes** or **no**")
+            .setFooter("It is not cheap so please shut down after use")
+        message.channel.send(confirmMessage)
         message.channel.awaitMessages(messageFilter, {
             max: 1,
             time: 30000,
