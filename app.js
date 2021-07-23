@@ -12,6 +12,8 @@ AWS.config.update({
 const ec2 = new AWS.EC2({apiVersion: "2016-11-15"})
 const EC2_INSTANCE = process.env.INSTANCE_ID;
 const prefix = process.env.PREFIX;
+const CHANNEL_ID = process.env.CHANNEL_ID;
+const ALLOWED_USERS = process.env.AUTHOR_IDS.split(",")
 
 client.on("ready", () => {
     console.log("Bot has started...");
@@ -83,11 +85,22 @@ function describe(message) {
 }
 
 client.on("message", async message => {
-    console.log(message.channel.id)
-    console.log(message.author.id)
     if (message.author.bot) return;
 
     if (message.content.indexOf(prefix) !== 0) return;
+
+    if (message.channel.id !== CHANNEL_ID) {
+        message.channel.send(`HEY, YOU CANT DO THAT HERE! Please go to <#${CHANNEL_ID}>`)
+        return;
+    }
+
+    if (ALLOWED_USERS.indexOf(message.author.id) === -1) {
+        const msg = new Discord.MessageEmbed()
+            .setImage("https://streamable.com/ln09hg")
+        message.channel.send(msg)
+        return;
+
+    }
 
     const command = message.content.replace(prefix, "").trim()
 
