@@ -1,0 +1,16 @@
+{
+  "name": "aws-bot",
+  "version": "1.0.0",
+  "description": "Turn on or turn off aws instance",
+  "main": "app.js",
+  "repository": "https://github.com/gdmurray/aws-discord-bot",
+  "author": "Greg Murray",
+  "license": "MIT",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.952.0",
+    "discord.js": "^12.5.3"
+  }
+}
