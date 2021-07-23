@@ -173,6 +173,10 @@ client.on("message", async message => {
 
     const command = message.content.replace(prefix, "").trim()
 
+    if (command === "pal") {
+        message.channel.send("https://tenor.com/bESVL.gif")
+    }
+
     if (command === "start") {
         startServer(message)
     }
