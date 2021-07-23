@@ -208,10 +208,6 @@ client.on("message", async message => {
     if (command === "status") {
         getStatus(message)
     }
-
-    if (command === "describe") {
-        describe(message)
-    }
 })
 
 client.login(process.env.TOKEN)
