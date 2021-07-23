@@ -44,7 +44,7 @@ function shutDownServer(message) {
         } else if (data) {
             console.log("Stopped")
             console.log(data)
-            message.channel.send("hold up")
+            message.channel.send(JSON.stringify(data))
         }
     })
 }
@@ -76,12 +76,14 @@ function describe(message) {
             console.log("Error", err.stack);
             message.channel.send(`Error Checking Description: ${err.message}`)
         } else if (data) {
-            message.channel.send(JSON.stringify(data))
+            console.log(data)
+            message.channel.send("hold up")
         }
     })
 }
 
 client.on("message", async message => {
+    console.log(message.channel.id)
     console.log(message.author.id)
     if (message.author.bot) return;
 
