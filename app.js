@@ -69,12 +69,17 @@ async function getStatus(message) {
             const statusMsg = new Discord.MessageEmbed()
                 .setTitle("Stream Server Status")
                 .addFields(
-                    {name: "State", value: instanceData.State.Name},
-                    {name: "Instance Type", value: instanceData.InstanceType},
-                    {name: "Zone", value: instanceData.Placement.AvailabilityZone},
-                    {name: "Started", value: instanceData.LaunchTime},
-                    {name: "Uptime", value: `${dayjs(instanceData.LaunchTime).fromNow()} | $${totalCost}`},
-                    {name: "Address", value: instanceData.PublicIpAddress}
+                    {name: "State", value: instanceData.State.Name, inline: true},
+                    {name: "Started", value: instanceData.LaunchTime, inline: true},
+                    {
+                        name: "Uptime",
+                        value: `${dayjs(instanceData.LaunchTime).fromNow()} | $${totalCost}`,
+                        inline: true
+                    },
+                    {name: '\u200B', value: '\u200B'},
+                    {name: "Instance Type", value: instanceData.InstanceType, inline: true},
+                    {name: "Zone", value: instanceData.Placement.AvailabilityZone, inline: true},
+                    {name: "Address", value: instanceData.PublicIpAddress, inline: true}
                 )
             message.channel.send(statusMsg)
         }
