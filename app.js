@@ -78,7 +78,9 @@ function describe(message) {
             console.log("Error", err.stack);
             message.channel.send(`Error Checking Description: ${err.message}`)
         } else if (data) {
-            console.log(data)
+            data.Reservations[0].Instances.forEach(instance => {
+                console.log(instance)
+            })
             message.channel.send("hold up")
         }
     })
@@ -96,7 +98,9 @@ client.on("message", async message => {
 
     if (ALLOWED_USERS.indexOf(message.author.id) === -1) {
         const msg = new Discord.MessageEmbed()
-            .setImage("https://streamable.com/ln09hg")
+            .setTitle("Cool kids allowed only")
+            .attachFiles(['./media/sorrypal.mp4'])
+            .setImage('attachment://sorrypal.mp4')
         message.channel.send(msg)
         return;
 
