@@ -83,67 +83,68 @@ function shutDownServer(message) {
 async function getStatus(message) {
     const msg = new Discord.MessageEmbed()
         .setTitle("Stream Server Status")
-    const [error, statusData] = await ec2.describeInstanceStatus(params);
-    if (error) {
-        msg.setColor('#F87171')
-        msg.setDescription("Error Getting Status")
-        msg.addFields({name: "Code", value: err.code, inline: true}, {
-            name: "Message",
-            value: err.message,
-            inline: true
-        })
-        message.channel.send(msg)
-        return
-    } else {
-        const instance = statusData.InstanceStatuses.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
-        const status = instance.InstanceStatus.Status
-        const okayStatuses = ["ok"]
-        const warningStatuses = ["insufficient-data", "initializing", "not-applicable"]
-        if (okayStatuses.indexOf(status) !== -1) {
-            msg.setColor("#34D399")
-        } else if (warningStatuses.indexOf(status) !== -1) {
-            msg.setColor("#FCD34D")
-        } else {
-            msg.setColor('#F87171')
-        }
-    }
-
-
-    await ec2.describeInstances(params, function (err, data) {
-        if (err) {
+    ec2.describeInstanceStatus(params, function (statusError, statusData) {
+        if (statusError) {
             msg.setColor('#F87171')
             msg.setDescription("Error Getting Status")
-            msg.addFields({name: "Code", value: err.code, inline: true}, {
+            msg.addFields({name: "Code", value: statusError.code, inline: true}, {
                 name: "Message",
-                value: err.message,
+                value: statusError.message,
                 inline: true
             })
             message.channel.send(msg)
-        } else if (data) {
-            const instanceData = data.Reservations[0].Instances.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
-            const timeUp = dayjs().diff(dayjs(instanceData.LaunchTime), 'minutes');
-            const totalCost = ((hourly_cost * timeUp) / 60).toFixed(2)
-            msg
-                .addFields(
-                    {name: "State", value: instanceData.State.Name, inline: true},
-                    {name: "Started", value: dayjs(instanceData.LaunchTime).format("LLL"), inline: true},
-                    {
-                        name: "Uptime",
-                        value: `${dayjs(instanceData.LaunchTime).fromNow()}`,
+            return;
+        } else {
+            const instance = statusData.InstanceStatuses.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
+            const status = instance.InstanceStatus.Status
+            const okayStatuses = ["ok"]
+            const warningStatuses = ["insufficient-data", "initializing", "not-applicable"]
+            if (okayStatuses.indexOf(status) !== -1) {
+                msg.setColor("#34D399")
+            } else if (warningStatuses.indexOf(status) !== -1) {
+                msg.setColor("#FCD34D")
+            } else {
+                msg.setColor('#F87171')
+            }
+
+            ec2.describeInstances(params, function (err, data) {
+                if (err) {
+                    msg.setColor('#F87171')
+                    msg.setDescription("Error Getting Status")
+                    msg.addFields({name: "Code", value: err.code, inline: true}, {
+                        name: "Message",
+                        value: err.message,
                         inline: true
-                    },
-                    {
-                        name: "Current Run Cost",
-                        value: `$${totalCost}`
-                    },
-                    {name: "Instance Type", value: instanceData.InstanceType, inline: true},
-                    {name: "Zone", value: instanceData.Placement.AvailabilityZone, inline: true},
-                    {name: "Address", value: instanceData.PublicIpAddress, inline: true}
-                )
-            msg.setFooter(`Status as of: ${dayjs().format('LLL')}`)
-            message.channel.send(msg)
+                    })
+                    message.channel.send(msg)
+                } else if (data) {
+                    const instanceData = data.Reservations[0].Instances.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
+                    const timeUp = dayjs().diff(dayjs(instanceData.LaunchTime), 'minutes');
+                    const totalCost = ((hourly_cost * timeUp) / 60).toFixed(2)
+                    msg
+                        .addFields(
+                            {name: "State", value: instanceData.State.Name, inline: true},
+                            {name: "Started", value: dayjs(instanceData.LaunchTime).format("LLL"), inline: true},
+                            {
+                                name: "Uptime",
+                                value: `${dayjs(instanceData.LaunchTime).fromNow()}`,
+                                inline: true
+                            },
+                            {
+                                name: "Current Run Cost",
+                                value: `$${totalCost}`
+                            },
+                            {name: "Instance Type", value: instanceData.InstanceType, inline: true},
+                            {name: "Zone", value: instanceData.Placement.AvailabilityZone, inline: true},
+                            {name: "Address", value: instanceData.PublicIpAddress, inline: true}
+                        )
+                    msg.setFooter(`Status as of: ${dayjs().format('LLL')}`)
+                    message.channel.send(msg)
+                }
+            })
+
         }
-    })
+    });
 
 
 }
