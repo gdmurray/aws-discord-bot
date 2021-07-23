@@ -168,13 +168,16 @@ client.on("message", async message => {
     const command = message.content.replace(prefix, "").trim()
     if (commands.indexOf(command) === -1) {
         const notRecognized = new Discord.MessageEmbed()
+            .setColor('#F87171')
             .setTitle(`Not a Recognized Command: ${command}`)
             .setDescription("Type !server help for list of commands")
+        message.channel.send(notRecognized)
+        return
     }
     if (command === "help") {
         const helpMsg = new Discord.MessageEmbed()
             .setTitle("Streaming Server Control Bot")
-            .setColor('#F87171')
+            .setColor("#34D399")
             .setDescription(`The scope of this bot is limited to <#${CHANNEL_ID}> only.`)
             .setFooter("The * on the commands indicate only specified users can access it")
             .addField("Help", "This command")
