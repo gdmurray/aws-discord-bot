@@ -165,10 +165,7 @@ client.on("message", async message => {
     }
 
     if (ALLOWED_USERS.indexOf(message.author.id) === -1) {
-        const msg = new Discord.MessageEmbed()
-            .setTitle("Cool kids allowed only")
-            .setImage("https://tenor.com/bESVL.gif")
-        message.channel.send(msg)
+        message.channel.send("Sorry pal, cool kids only.", {files: ["https://tenor.com/bESVL.gif"]})
         return;
 
     }
