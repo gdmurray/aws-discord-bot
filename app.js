@@ -10,7 +10,7 @@ AWS.config.update({
 })
 
 const ec2 = new AWS.EC2({apiVersion: "2016-11-15"})
-const EC2_INSTANCE = process.env.INSTANCE;
+const EC2_INSTANCE = process.env.INSTANCE_ID;
 const prefix = process.env.PREFIX;
 
 client.on("ready", () => {
