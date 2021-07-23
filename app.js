@@ -165,17 +165,12 @@ client.on("message", async message => {
     }
 
     if (ALLOWED_USERS.indexOf(message.author.id) === -1) {
-        // const attachment = new Discord.MessageAttachment()
         message.channel.send("https://tenor.com/bESVL.gif")
         return;
 
     }
 
     const command = message.content.replace(prefix, "").trim()
-
-    if (command === "pal") {
-        message.channel.send("https://tenor.com/bESVL.gif")
-    }
 
     if (command === "start") {
         startServer(message)
