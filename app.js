@@ -49,13 +49,22 @@ function shutDownServer(message) {
 }
 
 function getStatus(message) {
-    message.channel.send(`Checking Status For: ${EC2_INSTANCE}`)
+    message.channel.send(`Checking Server Status...`)
     ec2.describeInstanceStatus(params, function (err, data) {
         if (err) {
             console.log("Error", err.stack);
             message.channel.send(`Error Checking Status: ${err.message}`)
         } else if (data) {
-            message.channel.send(JSON.stringify(data))
+            const instanceData = data.InstanceStatuses.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
+            const embeddedMessage = new Discord.MessageEmbed()
+                .setTitle("Stream Server Status")
+                .addFields(
+                    {name: "Zone", value: instanceData.AvailabilityZone},
+                    {name: "State", value: instanceData.InstanceState.Name},
+                    {name: "Instance Status", value: instanceData.InstanceStatus.Status},
+                    {name: "System Statuss", value: instanceData.SystemStatus.Status}
+                )
+            message.channel.send(embeddedMessage)
         }
     })
 }
