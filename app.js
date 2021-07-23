@@ -2,6 +2,11 @@ const Discord = require("discord.js")
 const client = new Discord.Client()
 const AWS = require("aws-sdk")
 
+const RelativeTime = require("dayjs/plugin/relativeTime")
+const dayjs = require("dayjs")
+
+dayjs.extend(RelativeTime);
+
 
 AWS.config.update({
     region: "us-east-1",
@@ -14,6 +19,7 @@ const EC2_INSTANCE = process.env.INSTANCE_ID;
 const prefix = process.env.PREFIX;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 const ALLOWED_USERS = process.env.AUTHOR_IDS.split(",")
+const hourly_cost = 1.204
 
 client.on("ready", () => {
     console.log("Bot has started...");
@@ -51,39 +57,30 @@ function shutDownServer(message) {
     })
 }
 
-function getStatus(message) {
+async function getStatus(message) {
     message.channel.send(`Checking Server Status...`)
-    ec2.describeInstanceStatus(params, function (err, data) {
+    await ec2.describeInstances(params, function (err, data) {
         if (err) {
-            console.log("Error", err.stack);
-            message.channel.send(`Error Checking Status: ${err.message}`)
+            message.channel.send(`Error Fetching Information: ${err.message}`)
         } else if (data) {
-            const instanceData = data.InstanceStatuses.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
-            const embeddedMessage = new Discord.MessageEmbed()
+            const instanceData = data.Reservations[0].Instances.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
+            const timeUp = dayjs(instanceData.LaunchTime).diff(dayjs(), 'minutes');
+            const totalCost = (hourly_cost * timeUp) / 60
+            const statusMsg = new Discord.MessageEmbed()
                 .setTitle("Stream Server Status")
                 .addFields(
-                    {name: "Zone", value: instanceData.AvailabilityZone},
-                    {name: "State", value: instanceData.InstanceState.Name},
-                    {name: "Instance Status", value: instanceData.InstanceStatus.Status},
-                    {name: "System Statuss", value: instanceData.SystemStatus.Status}
+                    {name: "State", value: instanceData.State.Name},
+                    {name: "Instance Type", value: instanceData.InstanceType},
+                    {name: "Zone", value: instanceData.Placement.AvailabilityZone},
+                    {name: "Started", value: instanceData.LaunchTime},
+                    {name: "Uptime", value: `${dayjs(instanceData.LaunchTime).fromNow()} | $${totalCost}`},
+                    {name: "Address", value: instanceData.PublicIpAddress}
                 )
-            message.channel.send(embeddedMessage)
+            message.channel.send(statusMsg)
         }
     })
-}
 
-function describe(message) {
-    ec2.describeInstances(params, function (err, data) {
-        if (err) {
-            console.log("Error", err.stack);
-            message.channel.send(`Error Checking Description: ${err.message}`)
-        } else if (data) {
-            data.Reservations[0].Instances.forEach(instance => {
-                console.log(instance)
-            })
-            message.channel.send("hold up")
-        }
-    })
+
 }
 
 client.on("message", async message => {
@@ -99,8 +96,7 @@ client.on("message", async message => {
     if (ALLOWED_USERS.indexOf(message.author.id) === -1) {
         const msg = new Discord.MessageEmbed()
             .setTitle("Cool kids allowed only")
-            .attachFiles(['./media/sorrypal.mp4'])
-            .setImage('attachment://sorrypal.mp4')
+            .setImage("https://tenor.com/bESVL.gif")
         message.channel.send(msg)
         return;
 
