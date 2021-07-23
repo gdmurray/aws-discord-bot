@@ -165,7 +165,8 @@ client.on("message", async message => {
     }
 
     if (ALLOWED_USERS.indexOf(message.author.id) === -1) {
-        message.channel.send("Sorry pal, cool kids only.", {files: ["https://tenor.com/bESVL.gif"]})
+        // const attachment = new Discord.MessageAttachment()
+        message.channel.send("https://tenor.com/bESVL.gif")
         return;
 
     }
