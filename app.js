@@ -69,6 +69,17 @@ function getStatus(message) {
     })
 }
 
+function describe(message) {
+    ec2.describeInstances(params, function (err, data) {
+        if (err) {
+            console.log("Error", err.stack);
+            message.channel.send(`Error Checking Description: ${err.message}`)
+        } else if (data) {
+            message.channel.send(JSON.stringify(data))
+        }
+    })
+}
+
 client.on("message", async message => {
     if (message.author.bot) return;
 
@@ -103,6 +114,10 @@ client.on("message", async message => {
 
     if (command === "status") {
         getStatus(message)
+    }
+
+    if (command === "describe") {
+        describe(message)
     }
 })
 
