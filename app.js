@@ -155,22 +155,44 @@ async function getStatus(message) {
 }
 
 client.on("message", async message => {
+    const commands = ["start", "stop", "status", "help"]
     if (message.author.bot) return;
 
     if (message.content.indexOf(prefix) !== 0) return;
 
     if (message.channel.id !== CHANNEL_ID) {
-        message.channel.send(`HEY, YOU CANT DO THAT HERE! Please go to <#${CHANNEL_ID}>`)
+        message.channel.send(`Ma'am, this is a Wendy's. Please go to <#${CHANNEL_ID}>`)
         return;
+    }
+
+    const command = message.content.replace(prefix, "").trim()
+    if (commands.indexOf(command) === -1) {
+        const notRecognized = new Discord.MessageEmbed()
+            .setTitle(`Not a Recognized Command: ${command}`)
+            .setDescription("Type !server help for list of commands")
+    }
+    if (command === "help") {
+        const helpMsg = new Discord.MessageEmbed()
+            .setTitle("Streaming Server Control Bot")
+            .setColor('#F87171')
+            .setDescription(`The scope of this bot is limited to <#${CHANNEL_ID}> only.`)
+            .setFooter("The * on the commands indicate only specified users can access it")
+            .addField("Help", "This command")
+            .addField("Start*", "Starts the server")
+            .addField("Stop*", "Stops the server")
+            .addField("Status", "Describes the status of the server")
+        message.channel.send(helpMsg)
+        return
+    }
+
+    if (command === "status") {
+        getStatus(message)
     }
 
     if (ALLOWED_USERS.indexOf(message.author.id) === -1) {
         message.channel.send("https://tenor.com/bESVL.gif")
         return;
-
     }
-
-    const command = message.content.replace(prefix, "").trim()
 
     if (command === "start") {
         startServer(message)
@@ -200,10 +222,6 @@ client.on("message", async message => {
         }).catch(collected => {
             message.channel.send("Timeout")
         })
-    }
-
-    if (command === "status") {
-        getStatus(message)
     }
 })
 
