@@ -83,8 +83,10 @@ function shutDownServer(message) {
 async function getStatus(message) {
     const msg = new Discord.MessageEmbed()
         .setTitle("Stream Server Status")
+    console.log("fetching status")
     ec2.describeInstanceStatus(params, function (statusError, statusData) {
         if (statusError) {
+            console.log("Error getting status")
             msg.setColor('#F87171')
             msg.setDescription("Error Getting Status")
             msg.addFields({name: "Code", value: statusError.code, inline: true}, {
@@ -99,6 +101,7 @@ async function getStatus(message) {
             const status = instance.InstanceStatus.Status
             const okayStatuses = ["ok"]
             const warningStatuses = ["insufficient-data", "initializing", "not-applicable"]
+            msg.setDescription(`Status: ${status}`)
             if (okayStatuses.indexOf(status) !== -1) {
                 msg.setColor("#34D399")
             } else if (warningStatuses.indexOf(status) !== -1) {
@@ -107,6 +110,7 @@ async function getStatus(message) {
                 msg.setColor('#F87171')
             }
 
+            console.log("Describing Instance")
             ec2.describeInstances(params, function (err, data) {
                 if (err) {
                     msg.setColor('#F87171')
@@ -118,6 +122,7 @@ async function getStatus(message) {
                     })
                     message.channel.send(msg)
                 } else if (data) {
+                    console.log("Received Data from describe")
                     const instanceData = data.Reservations[0].Instances.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
                     const timeUp = dayjs().diff(dayjs(instanceData.LaunchTime), 'minutes');
                     const totalCost = ((hourly_cost * timeUp) / 60).toFixed(2)
