@@ -33,34 +33,38 @@ const params = {
 }
 
 function startServer(message) {
-    message.channel.send("[MOCK] Starting Production Server...")
+    const msg = new Discord.MessageEmbed()
+        .setTitle("Starting Server")
     ec2.startInstances(params, function (err, data) {
         if (err) {
             console.log("Error", err.stack);
-            message.channel.send(`Error Checking Status: ${err.message}`)
+            message.channel.send(`Error Stopping Server: ${err.message}`)
         } else if (data) {
-            message.channel.send(JSON.stringify(data))
-            message.channel.send("[MOCK] Production server started at [IP]")
+            const instance = data.StartingInstances[0];
+            msg.setDescription(`${instance.InstanceId}: ${instance.PreviousState.Name} -> ${instance.CurrentState.Name}`)
+            msg.setFooter(`Started: ${dayjs().format('LLL')}`)
+            message.channel.send(msg);
         }
     })
 }
 
 function shutDownServer(message) {
-    message.channel.send("[MOCK] Shutting down instance...")
+    const msg = new Discord.MessageEmbed()
+        .setTitle("Stopping Server")
     ec2.stopInstances(params, function (err, data) {
         if (err) {
             console.log("Error", err.stack);
             message.channel.send(`Error Stopping Instance: ${err.message}`)
         } else if (data) {
-            console.log("Stopped")
-            console.log(data)
-            message.channel.send(JSON.stringify(data))
+            const instance = data.StoppingInstances[0];
+            msg.setDescription(`${instance.InstanceId}: ${instance.PreviousState.Name} -> ${instance.CurrentState.Name}`);
+            msg.setFooter(`Stopped: ${dayjs().format('LLL')}`)
+            message.channel.send(msg);
         }
     })
 }
 
 async function getStatus(message) {
-    message.channel.send(`Checking Server Status...`)
     await ec2.describeInstances(params, function (err, data) {
         if (err) {
             message.channel.send(`Error Fetching Information: ${err.message}`)
