@@ -2,10 +2,12 @@ const Discord = require("discord.js")
 const client = new Discord.Client()
 const AWS = require("aws-sdk")
 
+const LocalizedFormat = require("dayjs/plugin/localizedFormat")
 const RelativeTime = require("dayjs/plugin/relativeTime")
 const dayjs = require("dayjs")
 
 dayjs.extend(RelativeTime);
+dayjs.extend(LocalizedFormat);
 
 
 AWS.config.update({
@@ -64,19 +66,22 @@ async function getStatus(message) {
             message.channel.send(`Error Fetching Information: ${err.message}`)
         } else if (data) {
             const instanceData = data.Reservations[0].Instances.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
-            const timeUp = dayjs(instanceData.LaunchTime).diff(dayjs(), 'minutes');
-            const totalCost = (hourly_cost * timeUp) / 60
+            const timeUp = dayjs().diff(dayjs(instanceData.LaunchTime), 'minutes');
+            const totalCost = ((hourly_cost * timeUp) / 60).toFixed(2)
             const statusMsg = new Discord.MessageEmbed()
                 .setTitle("Stream Server Status")
                 .addFields(
                     {name: "State", value: instanceData.State.Name, inline: true},
-                    {name: "Started", value: instanceData.LaunchTime, inline: true},
+                    {name: "Started", value: dayjs(instanceData.LaunchTime).format("LLL"), inline: true},
                     {
                         name: "Uptime",
-                        value: `${dayjs(instanceData.LaunchTime).fromNow()} | $${totalCost}`,
+                        value: `${dayjs(instanceData.LaunchTime).fromNow()}`,
                         inline: true
                     },
-                    {name: '\u200B', value: '\u200B'},
+                    {
+                        name: "Current Run Cost",
+                        value: `$${totalCost}`
+                    },
                     {name: "Instance Type", value: instanceData.InstanceType, inline: true},
                     {name: "Zone", value: instanceData.Placement.AvailabilityZone, inline: true},
                     {name: "Address", value: instanceData.PublicIpAddress, inline: true}
