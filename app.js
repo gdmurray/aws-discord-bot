@@ -49,6 +49,7 @@ function shutDownServer(message) {
 }
 
 function getStatus(message) {
+    message.channel.send(`Checking Status For: ${EC2_INSTANCE}`)
     ec2.describeInstanceStatus(params, function (err, data) {
         if (err) {
             console.log("Error", err.stack);
@@ -92,7 +93,7 @@ client.on("message", async message => {
     }
 
     if (command === "status") {
-
+        getStatus(message)
     }
 })
 
