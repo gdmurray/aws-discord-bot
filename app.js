@@ -43,7 +43,8 @@ function shutDownServer(message) {
             message.channel.send(`Error Stopping Instance: ${err.message}`)
         } else if (data) {
             console.log("Stopped")
-            message.channel.send(JSON.stringify(data))
+            console.log(data)
+            message.channel.send("hold up")
         }
     })
 }
@@ -81,6 +82,7 @@ function describe(message) {
 }
 
 client.on("message", async message => {
+    console.log(message.author.id)
     if (message.author.bot) return;
 
     if (message.content.indexOf(prefix) !== 0) return;
