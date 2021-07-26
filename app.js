@@ -131,7 +131,7 @@ async function getStatus(message) {
                     const instanceData = data.Reservations[0].Instances.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
                     const timeUp = dayjs().diff(dayjs(instanceData.LaunchTime), 'minutes');
                     const isStopped = instanceData.State.Name === "stopped"
-                    const totalCost = isStopped ? "-.--" : ((hourly_cost * timeUp) / 60).toFixed(2)
+                    const totalCost = isStopped ? "-" : ((hourly_cost * timeUp) / 60).toFixed(2)
                     if (isStopped) {
                         msg.setDescription("Status: stopped")
                     }
@@ -141,7 +141,7 @@ async function getStatus(message) {
                             {name: "Started", value: dayjs(instanceData.LaunchTime).format("LLL"), inline: true},
                             {
                                 name: "Uptime",
-                                value: isStopped ? 'stopped' : `${dayjs(instanceData.LaunchTime).fromNow()}`,
+                                value: isStopped ? '-' : `${dayjs(instanceData.LaunchTime).fromNow()}`,
                                 inline: true
                             },
                             {
