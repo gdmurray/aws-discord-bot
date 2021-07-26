@@ -98,15 +98,20 @@ async function getStatus(message) {
             return;
         } else {
             const instance = statusData.InstanceStatuses.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
-            const status = instance.InstanceStatus.Status
-            const okayStatuses = ["ok"]
-            const warningStatuses = ["insufficient-data", "initializing", "not-applicable"]
-            msg.setDescription(`Status: ${status}`)
-            if (okayStatuses.indexOf(status) !== -1) {
-                msg.setColor("#34D399")
-            } else if (warningStatuses.indexOf(status) !== -1) {
-                msg.setColor("#FCD34D")
+            if (instance) {
+                const status = instance.InstanceStatus.Status
+                const okayStatuses = ["ok"]
+                const warningStatuses = ["insufficient-data", "initializing", "not-applicable"]
+                msg.setDescription(`Status: ${status}`)
+                if (okayStatuses.indexOf(status) !== -1) {
+                    msg.setColor("#34D399")
+                } else if (warningStatuses.indexOf(status) !== -1) {
+                    msg.setColor("#FCD34D")
+                } else {
+                    msg.setColor('#F87171')
+                }
             } else {
+                msg.setDescription(`Status: Could Not Fetch Status`)
                 msg.setColor('#F87171')
             }
 
