@@ -130,14 +130,18 @@ async function getStatus(message) {
                     console.log("Received Data from describe")
                     const instanceData = data.Reservations[0].Instances.filter((elem) => elem.InstanceId === EC2_INSTANCE)[0];
                     const timeUp = dayjs().diff(dayjs(instanceData.LaunchTime), 'minutes');
-                    const totalCost = ((hourly_cost * timeUp) / 60).toFixed(2)
+                    const isStopped = instanceData.State.Name === "stopped"
+                    const totalCost = isStopped ? "-.--" : ((hourly_cost * timeUp) / 60).toFixed(2)
+                    if (isStopped) {
+                        msg.setDescription("Status: stopped")
+                    }
                     msg
                         .addFields(
                             {name: "State", value: instanceData.State.Name, inline: true},
                             {name: "Started", value: dayjs(instanceData.LaunchTime).format("LLL"), inline: true},
                             {
                                 name: "Uptime",
-                                value: `${dayjs(instanceData.LaunchTime).fromNow()}`,
+                                value: isStopped ? 'stopped' : `${dayjs(instanceData.LaunchTime).fromNow()}`,
                                 inline: true
                             },
                             {
@@ -146,7 +150,7 @@ async function getStatus(message) {
                             },
                             {name: "Instance Type", value: instanceData.InstanceType, inline: true},
                             {name: "Zone", value: instanceData.Placement.AvailabilityZone, inline: true},
-                            {name: "Address", value: instanceData.PublicIpAddress, inline: true}
+                            {name: "Address", value: isStopped ? '-' : instanceData.PublicIpAddress, inline: true}
                         )
                     msg.setFooter(`Status as of: ${dayjs().format('LLL')}`)
                     message.channel.send(msg)
